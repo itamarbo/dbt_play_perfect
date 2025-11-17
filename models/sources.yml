@@ -1,8 +1,14 @@
 version: 2
 
 sources:
-  - name: games
+  - name: raw
     schema: dev_raw
     tables:
       - name: events
         identifier: raw_events
+
+  - name: stg
+    schema: dev_stg
+    tables:
+      - name: events
+        identifier: stg_events

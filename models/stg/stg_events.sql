@@ -1,5 +1,5 @@
 with events as (
-SELECT * FROM {{ source('games', 'raw_events') }}
+SELECT * FROM {{ source('raw', 'events') }}
 )
 
 select distinct

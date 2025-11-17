@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: fct_events
+  - name: stg_events
     columns:
       - name: timestamp_utc
         data_tests:
