@@ -1,0 +1,12 @@
+version: 2
+
+models:
+  - name: fct_events
+    columns:
+      - name: timestamp_utc
+        data_tests:
+          - not_null
+
+      - name: player_id
+        data_tests:
+          - not_null
