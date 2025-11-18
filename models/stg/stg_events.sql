@@ -13,15 +13,15 @@ select distinct
 	tournament_id,
 	room_id,
 	entry_fee,
-	coins_spent,
+	coalesce(coins_spent, 0) as coins_spent,
 	players_capacity,
 	play_duration,
 	score,
 	position,
-	reward,
-	coins_claimed,
+	coalesce(reward, 0) as reward,
+	coalesce(coins_claimed, 0) as coins_claimed,
 	purchase_id,
 	product_id,
 	price_usd,
-    CURRENT_TIMESTAMP as mrr_created_date
+    CURRENT_TIMESTAMP as stg_created_date
 from events

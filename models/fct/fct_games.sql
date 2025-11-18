@@ -61,7 +61,7 @@ select
     t1.room_close_time,
     t1.play_duration,
     t1.balance_before,
-    -- COALESCE: אם אין תביעת פרס, המאזן נשאר כמו המאזן לפני התביעה (שהוא NULL כאן אם לא הייתה תביעה)
+    -- COALESCE: If there is no award claim, the balance remains as the balance before the claim (which is NULL here if there was no claim)
     coalesce(t1.balance_after_claim, t1.balance_before - t1.entry_fee) as balance_after_claim,
     t1.tournament_id,
     t1.room_id,
