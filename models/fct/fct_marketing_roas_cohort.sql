@@ -2,46 +2,24 @@
     materialized='table'
 ) }}
 
--- Marketing ROAS Cohort Table
-with total_income_per_day_and_player as (
+-- Marketing ROAS Cohort Table 
+with cohort_revenue as (
     select
-        player_id,
-        country_code,
-        date_utc,
-        sum(price_usd) as total_income
-    from {{ ref('stg_events') }}
-    where price_usd is not null
-    group by player_id, country_code, date_utc
+        i.install_date,
+        i.media_source,
+        e.country_code as country,
+        (e.date_utc - i.install_date)::int as days_since_install,
+        sum(e.price_usd) as daily_revenue
+    from {{ ref('stg_events') }} e
+    inner join {{ ref('stg_installs_attribution_table') }} i
+        on e.player_id = i.player_id 
+        and e.country_code = i.install_country
+    where e.price_usd is not null
+        and e.date_utc >= i.install_date
+    group by 1, 2, 3, 4
 ),
 
-player_revenue_with_cohort as (
-    select
-        t2.install_date,
-        t2.media_source,
-        t1.country_code as country,
-        t1.date_utc,
-        t1.player_id,
-        t1.total_income,
-        (t1.date_utc - t2.install_date)::int as days_since_install
-    from total_income_per_day_and_player t1
-    inner join {{ ref('stg_installs_attribution_table') }} t2
-        on t1.player_id = t2.player_id 
-        and t1.country_code = t2.install_country
-    where t1.date_utc >= t2.install_date
-),
-
-daily_cohort_revenue as (
-    select
-        install_date,
-        media_source,
-        country,
-        days_since_install,
-        sum(total_income) as daily_revenue
-    from player_revenue_with_cohort
-    group by install_date, media_source, country, days_since_install
-),
-
-cumulative_revenue as (
+cumulative_data as (
     select
         install_date,
         media_source,
@@ -51,17 +29,17 @@ cumulative_revenue as (
             partition by install_date, media_source, country
             order by days_since_install
         ) as cumulative_revenue
-    from daily_cohort_revenue
+    from cohort_revenue
 ),
 
-marketing_spend as (
+spend_data as (
     select
         install_date,
         media_source,
         country,
         sum(spend) as total_spend
     from {{ ref('stg_marketing_spend_table') }}
-    group by install_date, media_source, country
+    group by 1, 2, 3
 )
 
 select
@@ -75,9 +53,10 @@ select
         when s.total_spend > 0 
         then round((c.cumulative_revenue / s.total_spend * 100)::numeric, 1)
         else null
-    end as roas_percentage
-from cumulative_revenue c
-left join marketing_spend s
+    end as roas_percentage,
+    CURRENT_TIMESTAMP as fct_created_date
+from cumulative_data c
+left join spend_data s
     on c.install_date = s.install_date
     and c.media_source = s.media_source
     and c.country = s.country
