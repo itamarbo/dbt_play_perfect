@@ -1,16 +1,34 @@
-Welcome to your new dbt project!
+# Games Analytics - DBT Project
 
-### Using the starter project
+## Quick Start
 
-Try running the following commands:
+```bash
+dbt seed    # Load data
+dbt run     # Build models
+```
 
-- dbt run
-- dbt test
+## Models
 
-### Resources:
+**Staging:** `stg_events`, `stg_installs_attribution_table`, `stg_marketing_spend_table`
 
-- Learn more about dbt [in the docs](https://docs.getdbt.com/docs/introduction)
-- Check out [Discourse](https://discourse.getdbt.com/) for commonly asked questions and answers
-- Join the [chat](https://community.getdbt.com/) on Slack for live discussions and support
-- Find [dbt events](https://events.getdbt.com) near you
-- Check out [the blog](https://blog.getdbt.com/) for the latest news on dbt's development and best practices
+**Fact Tables:**
+
+- `fct_games` - Player game sessions
+- `daily_player` - Daily player activity
+- `fct_rooms` - Room aggregations
+- `fct_marketing_roas_cohort` - Marketing ROAS by cohort
+
+## ROAS Dashboard Query
+
+```sql
+SELECT
+    media_source,
+    MAX(CASE WHEN days_since_install = 7 THEN roas_percentage END) as d7,
+    MAX(CASE WHEN days_since_install = 30 THEN roas_percentage END) as d30,
+    MAX(CASE WHEN days_since_install = 90 THEN roas_percentage END) as d90
+FROM fct_marketing_roas_cohort
+WHERE install_date = '2024-07-01'
+GROUP BY media_source;
+```
+
+Itamar Ben Oren
