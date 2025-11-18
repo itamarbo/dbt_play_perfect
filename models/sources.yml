@@ -7,6 +7,12 @@ sources:
       - name: events
         identifier: raw_events
 
+      - name: installs_attribution
+        identifier: raw_installs_attribution_table
+
+      - name: marketing_spend
+        identifier: raw_marketing_spend_table
+
   - name: stg
     schema: dev_stg
     tables:
