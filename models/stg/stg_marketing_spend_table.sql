@@ -6,5 +6,5 @@ select
 	TO_DATE(date_utc, 'DD/MM/YYYY') as install_date,
 	media_source,
 	country,
-	spend
+	CAST(spend AS NUMERIC(10,2)) as spend
 from marketing_spend

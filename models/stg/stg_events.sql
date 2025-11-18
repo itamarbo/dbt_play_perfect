@@ -2,9 +2,9 @@ with events as (
 SELECT * FROM {{ source('raw', 'events') }}
 )
 
-select distinct
+select
 	timestamp_utc::timestamp as timestamp_utc,
-	date_utc:: DATE as date_utc,
+	TO_DATE(date_utc, 'DD/MM/YYYY') as date_utc,
 	event_name,
 	player_id,
 	level,
